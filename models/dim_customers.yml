@@ -34,12 +34,13 @@ models:
           
     # Metrics
     metrics:
-      - name: customers_with_orders
-        label: Customers with orders
+      - name: customers_with_orders_customers
+        label: Customers with orders (Customers)
         description: Unique count of customers placing orders
         type: simple
         agg: count_distinct
         expr: customer_id
+        # dbt sl query --metrics customers_with_orders_customers
       - name: count_lifetime_orders
         description: Total count of orders per customer
         type: simple
@@ -52,3 +53,5 @@ models:
         label: Lifetime spend
         agg: sum
         expr: lifetime_value
+        # dbt sl query --metrics lifetime_spend --group-by customer --order-by -lifetime_spend --where "lifetime_spend IS NOT NULL"
+        # You must group by the name of the entity itself (customer), not the physical column name (customer_id)

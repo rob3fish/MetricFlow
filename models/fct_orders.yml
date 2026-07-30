@@ -31,18 +31,20 @@ models:
         label: Order total
         agg: sum
         expr: amount
+        # dbt sl query --metrics order_total --group-by order_id__order_date__month --order-by order_id__order_date__month
       - name: order_count
         description: Number of orders
         type: simple
         label: Order count
         agg: sum
         expr: 1
-      - name: customers_with_orders
+      - name: customers_with_orders_orders
         description: Distinct count of customers placing orders
         type: simple
-        label: Customers with orders
+        label: Customers with orders (Orders)
         agg: count_distinct
         expr: customer_id
+        # dbt sl query --metrics customers_with_orders_orders --group-by order_id__order_date__month --order-by order_id__order_date__month
       - name: large_orders
         description: Count of orders with order total over 20
         type: simple
@@ -51,6 +53,7 @@ models:
         expr: 1
         filter: |
           {{ Dimension('order_id__amount') }} >= 20
+        # dbt sl query --metrics avg_order_value
       # Ratio type metric
       - name: avg_order_value
         label: Average order value
@@ -65,6 +68,7 @@ models:
         type: cumulative
         grain_to_date: month
         input_metric: order_total
+        # dbt sl query --metrics cumulative_order_amount_mtd --group-by order_id__order_date__month
       # Derived metric
       - name: pct_of_orders_that_are_large
         label: Percent of orders that are large
@@ -74,3 +78,20 @@ models:
         input_metrics:
           - name: large_orders
           - name: order_count
+        # dbt sl query --metrics pct_of_orders_that_are_large
+
+
+# dbt sl query --metrics order_count --group-by order_id__order_date__month --order-by order_id__order_date__month --compile
+
+# SELECT
+#   order_id__order_date__month
+#   , SUM(__order_count) AS order_count
+# FROM (
+#   SELECT
+#     DATE_TRUNC('month', order_date) AS order_id__order_date__month
+#     , 1 AS __order_count
+#   FROM analytics.dbt_rfish.fct_orders orders_src_10000
+# ) subq_3
+# GROUP BY
+#   order_id__order_date__month
+# ORDER BY order_id__order_date__month
