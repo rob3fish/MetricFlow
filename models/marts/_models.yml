@@ -14,3 +14,15 @@ models:
     columns:
       - name: date_year
         granularity: year
+
+exposures:
+  - name: imaginary_dashboard
+    type: dashboard
+    owner:
+      name: Your Name
+      email: your_email@udemy.com
+    depends_on:
+      # - ref('dim_customers')
+      # - ref('fct_orders')
+      # - metric('customers_with_orders_customers')
+      - metric('customers_with_orders_orders')
